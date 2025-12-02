@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "763713886510",
+    "firebase_url": "https://uceventhub-d3ab6-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "uceventhub-d3ab6",
+    "storage_bucket": "uceventhub-d3ab6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:763713886510:android:ab43719dab8906c84202bf",
+        "android_client_info": {
+          "package_name": "com.example.uc_event_hubb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtHZ6Vyre9xKakBCU8jex3YA1D6_oks0s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
