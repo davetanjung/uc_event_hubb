@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:uc_event_hubb/viewmodel/event_viewmodel.dart';
-import 'package:uc_event_hubb/widgets/bottom_bar.dart';
-import 'package:uc_event_hubb/widgets/upcoming_events_section.dart';
+part of 'pages.dart';
 
 class WelcomingPageView extends StatefulWidget {
   const WelcomingPageView({super.key});

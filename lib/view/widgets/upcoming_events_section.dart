@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uc_event_hubb/model/event.dart';
-import 'package:uc_event_hubb/widgets/event_card_widget.dart';
+import 'package:uc_event_hubb/view/widgets/event_card_widget.dart';
 
 class UpcomingEventsSection extends StatelessWidget {
   final List<Event> events;

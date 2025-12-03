@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:uc_event_hubb/viewmodel/event_viewmodel.dart';
+part of 'pages.dart';
 
 class EventScreen extends StatelessWidget {
   const EventScreen({super.key});

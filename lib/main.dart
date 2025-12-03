@@ -3,7 +3,7 @@ import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
-import 'view/welcoming_page_view.dart';  // Import your new welcoming page
+import 'view/pages/welcoming_page_view.dart';  // Import your new welcoming page
 import 'viewmodel/event_viewmodel.dart';
 
 Future<void> main() async {
