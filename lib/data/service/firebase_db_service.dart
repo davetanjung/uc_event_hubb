@@ -1,8 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 
 class FirebaseDBService {
-  final FirebaseDatabase _db = FirebaseDatabase.instance;
-
   Future<String> create({
     required DatabaseReference ref,
     required Map<String, dynamic> data,
@@ -60,9 +58,7 @@ class FirebaseDBService {
     }
   }
 
-  Future<void> delete({
-    required DatabaseReference ref,
-  }) async {
+  Future<void> delete({required DatabaseReference ref}) async {
     try {
       await ref.remove();
     } catch (e) {
