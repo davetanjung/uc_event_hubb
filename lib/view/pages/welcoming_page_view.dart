@@ -8,13 +8,13 @@ class WelcomingPageView extends StatefulWidget {
 }
 
 class _WelcomingPageViewState extends State<WelcomingPageView> {
-  int _currentNavIndex = 1; 
+  int _currentNavIndex = 1;
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<EventViewModel>().loadEvents();
     });
@@ -93,7 +93,10 @@ class _WelcomingPageViewState extends State<WelcomingPageView> {
                         decoration: InputDecoration(
                           hintText: 'Search your events ...',
                           hintStyle: TextStyle(color: Colors.grey[400]),
-                          prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: Colors.grey,
+                          ),
                           filled: true,
                           fillColor: Colors.white,
                           border: OutlineInputBorder(
@@ -152,7 +155,13 @@ class _WelcomingPageViewState extends State<WelcomingPageView> {
                           errorMessage: viewModel.errorMessage,
                           onEventTap: (event) {
                             // Navigate to event detail page
-                            print('Event tapped: ${event.title}');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    EventDetailView(event: event),
+                              ),
+                            );
                           },
                         );
                       },
@@ -187,7 +196,14 @@ class _WelcomingPageViewState extends State<WelcomingPageView> {
                           isLoading: viewModel.isLoading,
                           errorMessage: viewModel.errorMessage,
                           onEventTap: (event) {
-                            print('Mandatory event tapped: ${event.title}');
+                            // Navigate to event detail page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    EventDetailView(event: event),
+                              ),
+                            );
                           },
                         );
                       },
@@ -208,7 +224,7 @@ class _WelcomingPageViewState extends State<WelcomingPageView> {
           setState(() {
             _currentNavIndex = index;
           });
-          
+
           // Handle navigation based on index
           switch (index) {
             case 0:
@@ -268,10 +284,7 @@ class _CategoryButton extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 12, color: Colors.black87),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
