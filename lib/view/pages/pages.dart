@@ -9,3 +9,5 @@ part 'my_ticket_view.dart';
 part 'profile_screen_view.dart';
 part 'splash_screen_view.dart';
 part 'welcoming_page_view.dart';
+part 'welcome_page_view.dart';
+part 'login_page_view.dart';
