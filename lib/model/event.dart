@@ -12,6 +12,7 @@ class Event {
   final String description;
   final int maximumParticipant;
   final String image;
+  final int price;
 
   Event({
     required this.id,
@@ -27,6 +28,7 @@ class Event {
     required this.description,
     required this.maximumParticipant,
     required this.image,
+    this.price = 0,
   });
 
   factory Event.fromJson(String id, Map<String, dynamic> json) {
@@ -46,6 +48,9 @@ class Event {
           ? json["maximum_participant"] 
           : int.tryParse(json["maximum_participant"]?.toString() ?? "0") ?? 0,
       image: json["image"]?.toString() ?? "",
+      price: json["price"] is int 
+          ? json["price"] 
+          : int.tryParse(json["price"]?.toString() ?? "0") ?? 0,
     );
   }
 
@@ -63,6 +68,7 @@ class Event {
       "description": description,
       "maximum_participant": maximumParticipant,
       "image": image,
+      "price": price,
     };
   }
 }

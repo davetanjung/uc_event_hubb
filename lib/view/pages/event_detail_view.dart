@@ -174,7 +174,7 @@ class _EventDetailViewState extends State<EventDetailView> {
                   // Ticket 1 - Sold Out
                   _buildTicketCard(
                     type: 'Pendaftaran Koor Event',
-                    price: 0,
+                    price: widget.event.price,
                     isSoldOut: true,
                   ),
                   const SizedBox(height: 12),
@@ -182,7 +182,7 @@ class _EventDetailViewState extends State<EventDetailView> {
                   // Ticket 2 - Available
                   _buildTicketCard(
                     type: 'Pendaftaran Koor Invent',
-                    price: 0,
+                    price: widget.event.price,
                     isSoldOut: false,
                   ),
 
@@ -240,6 +240,16 @@ class _EventDetailViewState extends State<EventDetailView> {
     );
   }
 
+  String _formatPrice(int price) {
+    if (price == 0) {
+      return 'Gratis';
+    }
+    return price.toString().replaceAllMapped(
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+        );
+  }
+
   Widget _buildTicketCard({
     required String type,
     required int price,
@@ -282,7 +292,7 @@ class _EventDetailViewState extends State<EventDetailView> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Rp. $price',
+                  'Rp. ${_formatPrice(price)}',
                   style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                 ),
               ],
