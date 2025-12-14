@@ -1,25 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:uc_event_hubb/view/pages/pages.dart';
-import 'firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
+import 'package:depd_alp/ProfilePage.dart';
+import 'package:flutter/material.dart';// Import halaman event di sini
 
-import 'viewmodel/event_viewmodel.dart';
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => EventViewModel()),
-      ],
-      child: const MyApp(),
-    ),
-  );
+void main() {
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -28,13 +11,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'UC Event Hub',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const WelcomingPageView(),  // Changed from EventScreen to WelcomingPageView
       debugShowCheckedModeBanner: false,
+      title: 'Event UI Clone',
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF8F9FD), // Light greyish background
+      ),
+      home: const ProfilePage(), // Memanggil HomePage dari file eventpage.dart
     );
   }
 }
