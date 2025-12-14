@@ -12,26 +12,37 @@ class _LoginPageViewState extends State<LoginPageView> {
   final passwordController = TextEditingController();
 
   Future<void> login() async {
-    try {
-      UserCredential userCred = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
+    final authVM = context.read<AuthViewModel>();
+
+    await authVM.login(
+      emailController.text.trim(),
+      passwordController.text.trim(),
+    );
+
+    if (!mounted) return;
+
+    if (authVM.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authVM.errorMessage!)),
       );
-
-      String token = await userCred.user!.getIdToken();
-      print("FIREBASE TOKEN: $token");
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Login success")));
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error: $e")));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Login success")),
+      );
     }
   }
 
   @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isLoading = context.watch<AuthViewModel>().isLoading;
+
     return Scaffold(
       appBar: AppBar(title: const Text("Login")),
       body: Padding(
@@ -49,8 +60,10 @@ class _LoginPageViewState extends State<LoginPageView> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: login,
-              child: const Text("Login"),
+              onPressed: isLoading ? null : login,
+              child: isLoading
+                  ? const CircularProgressIndicator()
+                  : const Text("Login"),
             ),
           ],
         ),
