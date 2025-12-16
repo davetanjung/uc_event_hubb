@@ -14,6 +14,14 @@ class _LoginPageViewState extends State<LoginPageView> {
   Future<void> login() async {
     final authVM = context.read<AuthViewModel>();
 
+    // Basic validation
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill in all fields")),
+      );
+      return;
+    }
+
     await authVM.login(
       emailController.text.trim(),
       passwordController.text.trim(),
@@ -29,6 +37,7 @@ class _LoginPageViewState extends State<LoginPageView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Login success")),
       );
+      // Navigate to Home Page here usually
     }
   }
 
@@ -52,6 +61,7 @@ class _LoginPageViewState extends State<LoginPageView> {
             TextField(
               controller: emailController,
               decoration: const InputDecoration(labelText: "Email"),
+              keyboardType: TextInputType.emailAddress,
             ),
             TextField(
               controller: passwordController,
@@ -62,8 +72,27 @@ class _LoginPageViewState extends State<LoginPageView> {
             ElevatedButton(
               onPressed: isLoading ? null : login,
               child: isLoading
-                  ? const CircularProgressIndicator()
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Text("Login"),
+            ),
+            const SizedBox(height: 10),
+            // --- NEW "Create Account" BUTTON ---
+            TextButton(
+              onPressed: isLoading
+                  ? null
+                  : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RegistrationPageView(),
+                        ),
+                      );
+                    },
+              child: const Text("Don't have an account? Create one"),
             ),
           ],
         ),
