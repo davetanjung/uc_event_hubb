@@ -1,3 +1,5 @@
+import 'package:uc_event_hubb/model/quiz.dart';
+
 class Event {
   final String id;
   final String title;

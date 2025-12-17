@@ -30,13 +30,13 @@ class _LoginPageViewState extends State<LoginPageView> {
     if (!mounted) return;
 
     if (authVM.errorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authVM.errorMessage!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(authVM.errorMessage!)));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Login success")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Login success")));
       // Navigate to Home Page here usually
     }
   }
@@ -93,6 +93,14 @@ class _LoginPageViewState extends State<LoginPageView> {
                       );
                     },
               child: const Text("Don't have an account? Create one"),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/create_event');
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+              child: const Text("Test Create Event Page"),
             ),
           ],
         ),

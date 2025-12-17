@@ -70,7 +70,7 @@ class EventScreen extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            Text("${event.location} • ${event.date}"),
+                            Text("${event.location} • ${event.startDate}"),
                           ],
                         ),
                       ),

@@ -20,4 +20,15 @@ class UserRepository {
     final ref = _database.ref("users/${user.id}");
     await _db.update(ref: ref, data: user.toJson());
   }
+
+  Future<List<User>> fetchAllUsers() async {
+    final ref = _database.ref("users"); // Assuming your users are stored under "users" node
+    final rawList = await _db.readAll(ref: ref);
+
+    return rawList.map((item) {
+      // Assuming the key in the map is the ID, or it's inside the item
+      final id = item['id'] ?? item.keys.first; // Adjust based on your actual DB structure
+      return User.fromJson(item, id);
+    }).toList();
+  }
 }

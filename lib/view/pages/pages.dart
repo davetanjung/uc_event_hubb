@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uc_event_hubb/model/quiz.dart';
+import 'package:uc_event_hubb/model/event.dart';
 import 'package:uc_event_hubb/viewmodel/event_viewmodel.dart';
 import 'package:uc_event_hubb/view/widgets/bottom_bar.dart';
 import 'package:uc_event_hubb/view/widgets/upcoming_events_section.dart';
 import 'package:uc_event_hubb/viewmodel/auth_viewmodel.dart';
+import 'package:uc_event_hubb/data/service/cloudinary_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:image_picker/image_picker.dart';
+import 'package:uc_event_hubb/viewmodel/user_viewmodel.dart';
 
 part 'explore_screen_view.dart';
 part 'my_ticket_view.dart';
@@ -13,3 +21,4 @@ part 'welcoming_page_view.dart';
 part 'welcome_page_view.dart';
 part 'login_page_view.dart';
 part 'registration_page_view.dart';
+part 'create_event_view.dart';
