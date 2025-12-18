@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uc_event_hubb/view/pages/pages.dart'; // Ensure CreateEventView is exported here
 import 'firebase_options.dart';
+import 'package:uc_event_hubb/view/widgets/bottom_bar.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 
@@ -45,9 +46,45 @@ class MyApp extends StatelessWidget {
       // Register your routes here
       routes: {
         '/login': (context) => const LoginPageView(),
-        '/explore': (context) => const HomeScreen(),
+        '/explore': (context) => const MainNavigationScreen(),
         '/create_event': (context) => const CreateEventView(),
       },
+    );
+  }
+}
+
+class MainNavigationScreen extends StatefulWidget {
+  const MainNavigationScreen({super.key});
+
+  @override
+  State<MainNavigationScreen> createState() => _MainNavigationScreenState();
+}
+
+class _MainNavigationScreenState extends State<MainNavigationScreen> {
+  int _currentIndex = 1; // Start with Explore tab (index 1)
+
+  // Define your screens here
+  final List<Widget> _screens = [
+    const MyTicketScreen(), // Index 0 - My Ticket
+    const HomeScreen(),      // Index 1 - Explore
+    const ProfileScreen(),   // Index 2 - Profile
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+      ),
     );
   }
 }
