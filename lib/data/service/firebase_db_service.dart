@@ -21,17 +21,50 @@ class FirebaseDBService {
   }) async {
     try {
       final snapshot = await ref.get();
-
+      print('DEBUG: snapshot.exists = ${snapshot.exists}');
+      
       if (!snapshot.exists) return [];
-
-      final data = snapshot.value as Map<dynamic, dynamic>;
-
-      return data.entries.map((entry) {
-        final map = Map<String, dynamic>.from(entry.value);
-        map["id"] = entry.key;
-        return map;
-      }).toList();
+      
+      final dynamic rawData = snapshot.value;
+      print('DEBUG: rawData type = ${rawData.runtimeType}');
+      print('DEBUG: rawData = $rawData');
+      
+      if (rawData == null) return [];
+      
+      final List<Map<String, dynamic>> result = [];
+      
+      if (rawData is Map) {
+        print('DEBUG: rawData is Map');
+        rawData.forEach((key, value) {
+          print('DEBUG: key = $key, value type = ${value.runtimeType}');
+          print('DEBUG: value = $value');
+          
+          if (value is Map) {
+            try {
+              // Try different conversion methods
+              final map = <String, dynamic>{};
+              
+              // Cast to Map and iterate
+              final valueAsMap = value as Map;
+              for (var entry in valueAsMap.entries) {
+                map[entry.key.toString()] = entry.value;
+              }
+              
+              map["id"] = key.toString();
+              print('DEBUG: Successfully converted map with id ${map["id"]}');
+              result.add(map);
+            } catch (e) {
+              print('DEBUG: Error converting map: $e');
+              rethrow;
+            }
+          }
+        });
+      }
+      
+      print('DEBUG: Total results = ${result.length}');
+      return result;
     } catch (e) {
+      print('DEBUG: Exception in readAll: $e');
       rethrow;
     }
   }

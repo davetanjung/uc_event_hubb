@@ -40,14 +40,12 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
 
-      // Start at WelcomePage
       home: const WelcomePageView(),
       
       // Register your routes here
       routes: {
         '/login': (context) => const LoginPageView(),
-        '/explore': (context) => const EventScreen(),
-        // Add the new route here:
+        '/explore': (context) => const HomeScreen(),
         '/create_event': (context) => const CreateEventView(),
       },
     );
