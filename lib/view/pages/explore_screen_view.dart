@@ -19,6 +19,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Access AuthViewModel to get user data
+    final authVM = Provider.of<AuthViewModel>(context);
+    
     return ChangeNotifierProvider(
       create: (_) => EventViewModel()
         ..loadEvents()
@@ -34,10 +37,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header
-                      const Text(
-                        "Hello, Suryanto",
-                        style: TextStyle(
+                      // Header - Now using actual user data
+                      Text(
+                        "Hello, ${authVM.userName}",
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,

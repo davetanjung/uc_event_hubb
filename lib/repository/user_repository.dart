@@ -31,4 +31,17 @@ class UserRepository {
       return User.fromJson(item, id);
     }).toList();
   }
+
+  
+Future<User> getUserById(String userId) async {
+  final ref = _database.ref("users/$userId");
+  final snapshot = await ref.get();
+  
+  if (!snapshot.exists) {
+    throw Exception('User not found');
+  }
+  
+  final data = Map<String, dynamic>.from(snapshot.value as Map);
+  return User.fromJson(data, userId);
+}
 }

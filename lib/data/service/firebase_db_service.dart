@@ -35,10 +35,9 @@ class FirebaseDBService {
           
           if (value is Map) {
             try {
-              // Try different conversion methods
+
               final map = <String, dynamic>{};
               
-              // Cast to Map and iterate
               final valueAsMap = value as Map;
               for (var entry in valueAsMap.entries) {
                 map[entry.key.toString()] = entry.value;
