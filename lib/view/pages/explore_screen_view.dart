@@ -500,7 +500,6 @@ class _HomeScreenState extends State<HomeScreen> {
                  eventCategory != "career center" && 
                  eventCategory != "international";
         } else {
-          // For specific categories, match with case-insensitive comparison
           return eventCategory == selectedCategory;
         }
       }).toList();
