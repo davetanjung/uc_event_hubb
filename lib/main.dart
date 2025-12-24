@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:uc_event_hubb/view/pages/pages.dart'; // Ensure CreateEventView is exported here
+import 'package:uc_event_hubb/view/pages/pages.dart'; 
 import 'firebase_options.dart';
 import 'package:uc_event_hubb/view/widgets/bottom_bar.dart';
 import 'package:firebase_core/firebase_core.dart';

@@ -10,11 +10,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedCategory = '';
+  bool _sortByKP = false; // New: sorting toggle
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  // New: Format price with thousand separators
+  String _formatPrice(int price) {
+    if (price == 0) return "Free";
+    return "Rp ${price.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    )}";
   }
 
   @override
@@ -112,14 +122,58 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Upcoming Events Section
-                      const Text(
-                        "Upcoming Events",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                      // New: Sort by KP Toggle
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Upcoming Events",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _sortByKP = !_sortByKP;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _sortByKP ? const Color(0xFF4DB8E8) : Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: _sortByKP ? const Color(0xFF4DB8E8) : Colors.grey.shade300,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.sort,
+                                    size: 16,
+                                    color: _sortByKP ? Colors.white : Colors.black87,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "Sort by KP",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: _sortByKP ? Colors.white : Colors.black87,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
 
@@ -131,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const Center(child: Text("No upcoming events"))
                       else
                         SizedBox(
-                          height: 220,
+                          height: 240, // Increased height for KP display
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: _getFilteredEvents(vm.events).length,
@@ -311,6 +365,41 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              // New: KP Badge
+              if (event.kp.isNotEmpty)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4DB8E8),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.star,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          "${event.kp} KP",
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
 
@@ -356,21 +445,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        event.price == 0 ? "Free" : "Rp ${event.price}",
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54,
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          _formatPrice(event.price),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
@@ -396,11 +488,31 @@ class _HomeScreenState extends State<HomeScreen> {
       }).toList();
     }
 
-    // Filter by category
+    // Filter by category (case-insensitive comparison)
     if (_selectedCategory.isNotEmpty) {
       filtered = filtered.where((event) {
-        return event.category == _selectedCategory;
+        final eventCategory = event.category.toLowerCase().trim();
+        final selectedCategory = _selectedCategory.toLowerCase().trim();
+        
+        // If selected category is "Lainnya", show events that are NOT in the main 3 categories
+        if (selectedCategory == "lainnya") {
+          return eventCategory != "pengmas" && 
+                 eventCategory != "career center" && 
+                 eventCategory != "international";
+        } else {
+          // For specific categories, match with case-insensitive comparison
+          return eventCategory == selectedCategory;
+        }
       }).toList();
+    }
+
+    // Sort by KP (highest to lowest)
+    if (_sortByKP) {
+      filtered.sort((a, b) {
+        final aKP = double.tryParse(a.kp) ?? 0;
+        final bKP = double.tryParse(b.kp) ?? 0;
+        return bKP.compareTo(aKP); // Descending order
+      });
     }
 
     return filtered;
