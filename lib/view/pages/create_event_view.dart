@@ -11,7 +11,6 @@ class _CreateEventViewState extends State<CreateEventView> {
   @override
   void initState() {
     super.initState();
-    // Fetch users immediately when Create Page opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<UserViewModel>().fetchUsers();
     });
@@ -20,9 +19,9 @@ class _CreateEventViewState extends State<CreateEventView> {
   int _currentStep = 0;
   bool _isUploading = false;
 
-  // --- 1. Event Bio Controllers ---
+  // --- 1. Event Bio Data ---
   final titleController = TextEditingController();
-  final categoryController = TextEditingController();
+  // REMOVED: final categoryController = TextEditingController(); 
   final descController = TextEditingController();
   final locationController = TextEditingController();
   final roomController = TextEditingController();
@@ -30,9 +29,11 @@ class _CreateEventViewState extends State<CreateEventView> {
   final quotaController = TextEditingController();
   final kpController = TextEditingController();
 
-  // CHANGE: Use XFile for cross-platform compatibility
-  XFile? _selectedImageFile;
+  // CHANGE: Added specific category options and a variable to store selection
+  final List<String> _categoryOptions = ["pengmas", "career center", "international"];
+  String? _selectedCategory;
 
+  XFile? _selectedImageFile;
   DateTime? startDate;
   DateTime? endDate;
   bool isMandatory = false;
@@ -44,7 +45,7 @@ class _CreateEventViewState extends State<CreateEventView> {
   @override
   void dispose() {
     titleController.dispose();
-    categoryController.dispose();
+    // categoryController.dispose(); // No longer needed
     descController.dispose();
     locationController.dispose();
     roomController.dispose();
@@ -54,18 +55,12 @@ class _CreateEventViewState extends State<CreateEventView> {
     super.dispose();
   }
 
-  // --- Logic to Pick Image ---
+  // ... [Keep _pickImage and _pickDate as they were] ...
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    // Use XFile (works on Web & Mobile)
-    final XFile? pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-    );
-
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() {
-        _selectedImageFile = pickedFile;
-      });
+      setState(() => _selectedImageFile = pickedFile);
     }
   }
 
@@ -78,29 +73,34 @@ class _CreateEventViewState extends State<CreateEventView> {
     );
     if (picked != null) {
       setState(() {
-        if (isStart)
-          startDate = picked;
-        else
-          endDate = picked;
+        if (isStart) startDate = picked; else endDate = picked;
       });
     }
   }
 
   Future<void> _submitEvent() async {
     final eventVM = context.read<EventViewModel>();
-    // Make sure to instantiate your CloudinaryService properly
+    // 1. Access the AuthViewModel
+    final authVM = context.read<AuthViewModel>();
     final cloudinary = CloudinaryService();
 
-    if (titleController.text.isEmpty || startDate == null || endDate == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Fill Title and Dates")));
+    // 2. Security Check: Ensure user is actually logged in
+    final String currentUserId = authVM.userId;
+    if (currentUserId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error: You are not logged in.")),
+      );
+      return;
+    }
+
+    if (titleController.text.isEmpty || startDate == null || endDate == null || _selectedCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill Title, Category, and Dates")),
+      );
       return;
     }
     if (_selectedImageFile == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Select an image")));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Select an image")));
       return;
     }
 
@@ -108,13 +108,10 @@ class _CreateEventViewState extends State<CreateEventView> {
 
     String imageUrl = "";
     try {
-      // Upload using the updated service (make sure service accepts XFile)
       imageUrl = await cloudinary.uploadImage(_selectedImageFile!);
     } catch (e) {
       setState(() => _isUploading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Upload Failed: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Upload Failed: $e")));
       return;
     }
 
@@ -126,8 +123,9 @@ class _CreateEventViewState extends State<CreateEventView> {
     final newEvent = Event(
       id: "",
       title: titleController.text,
-      category: categoryController.text,
-      creatorId: "current_user_id",
+      category: _selectedCategory!, 
+      // 3. USE THE REAL ID HERE
+      creatorId: currentUserId, 
       description: descController.text,
       startDate: startDate.toString().split(' ')[0],
       endDate: endDate.toString().split(' ')[0],
@@ -149,11 +147,11 @@ class _CreateEventViewState extends State<CreateEventView> {
 
     if (!mounted) return;
     if (resultId != null) {
+      // Optional: Refresh user data if you track "eventsCreatedCount" locally
+      // await authVM.refreshUserData(); 
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(eventVM.errorMessage ?? "Error")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(eventVM.errorMessage ?? "Error")));
     }
   }
 
@@ -169,23 +167,29 @@ class _CreateEventViewState extends State<CreateEventView> {
         type: StepperType.horizontal,
         currentStep: _currentStep,
         onStepContinue: () {
-          if (_currentStep < 2)
+          if (_currentStep < 2) {
             setState(() => _currentStep += 1);
-          else
+          } else {
             _submitEvent();
+          }
         },
         onStepCancel: () {
-          if (_currentStep > 0)
+          if (_currentStep > 0) {
             setState(() => _currentStep -= 1);
-          else
+          } else {
             Navigator.pop(context);
+          }
         },
         steps: [
           Step(
             title: const Text("Bio"),
             content: _EventBioForm(
               titleController: titleController,
-              categoryController: categoryController,
+              // CHANGE: Pass selected value, options, and callback instead of controller
+              selectedCategory: _selectedCategory,
+              categoryOptions: _categoryOptions,
+              onCategoryChanged: (val) => setState(() => _selectedCategory = val),
+              
               descController: descController,
               locationController: locationController,
               roomController: roomController,
@@ -195,20 +199,20 @@ class _CreateEventViewState extends State<CreateEventView> {
               startDate: startDate,
               endDate: endDate,
               isMandatory: isMandatory,
-              selectedImage: _selectedImageFile, // Passing XFile
-              onPickImage: _pickImage, // Passing Callback
+              selectedImage: _selectedImageFile,
+              onPickImage: _pickImage,
               onDatePick: (isStart) => _pickDate(context, isStart),
               onMandatoryChanged: (val) => setState(() => isMandatory = val!),
             ),
             isActive: _currentStep >= 0,
           ),
-          Step(
+          // ... [Keep Step 2 (Quizzes) and Step 3 (Committees) exactly as they were] ...
+           Step(
             title: const Text("Quizzes"),
             content: _EventQuizForm(
               quizzes: _tempQuizzes,
               onAddQuiz: (quiz) => setState(() => _tempQuizzes.add(quiz)),
-              onRemoveQuiz: (index) =>
-                  setState(() => _tempQuizzes.removeAt(index)),
+              onRemoveQuiz: (index) => setState(() => _tempQuizzes.removeAt(index)),
             ),
             isActive: _currentStep >= 1,
           ),
@@ -216,10 +220,8 @@ class _CreateEventViewState extends State<CreateEventView> {
             title: const Text("Committees"),
             content: _EventCommitteeForm(
               committees: _tempCommittees,
-              onAddCommittee: (name) =>
-                  setState(() => _tempCommittees.add(name)),
-              onRemoveCommittee: (index) =>
-                  setState(() => _tempCommittees.removeAt(index)),
+              onAddCommittee: (name) => setState(() => _tempCommittees.add(name)),
+              onRemoveCommittee: (index) => setState(() => _tempCommittees.removeAt(index)),
             ),
             isActive: _currentStep >= 2,
           ),
@@ -230,11 +232,16 @@ class _CreateEventViewState extends State<CreateEventView> {
 }
 
 // ==========================================
-// VIEW 1: Adding Event Bio (FIXED)
+// VIEW 1: Adding Event Bio (UPDATED)
 // ==========================================
 class _EventBioForm extends StatelessWidget {
   final TextEditingController titleController;
-  final TextEditingController categoryController;
+  
+  // CHANGE: New fields for Dropdown logic
+  final String? selectedCategory;
+  final List<String> categoryOptions;
+  final ValueChanged<String?> onCategoryChanged;
+
   final TextEditingController descController;
   final TextEditingController locationController;
   final TextEditingController roomController;
@@ -244,17 +251,18 @@ class _EventBioForm extends StatelessWidget {
   final DateTime? startDate;
   final DateTime? endDate;
   final bool isMandatory;
-
-  // FIX: These were missing in your snippet
   final XFile? selectedImage;
   final VoidCallback onPickImage;
-
   final Function(bool isStart) onDatePick;
   final ValueChanged<bool?> onMandatoryChanged;
 
   const _EventBioForm({
     required this.titleController,
-    required this.categoryController,
+    // CHANGE: Updated constructor
+    required this.selectedCategory,
+    required this.categoryOptions,
+    required this.onCategoryChanged,
+    
     required this.descController,
     required this.locationController,
     required this.roomController,
@@ -274,7 +282,7 @@ class _EventBioForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // --- Image Picker UI ---
+        // --- Image Picker UI (Unchanged) ---
         GestureDetector(
           onTap: onPickImage,
           child: Container(
@@ -291,65 +299,64 @@ class _EventBioForm extends StatelessWidget {
                     children: [
                       Icon(Icons.add_a_photo, size: 40, color: Colors.grey),
                       SizedBox(height: 5),
-                      Text(
-                        "Tap to upload Event Banner",
-                        style: TextStyle(color: Colors.grey),
-                      ),
+                      Text("Tap to upload Event Banner", style: TextStyle(color: Colors.grey)),
                     ],
                   )
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    // FIX: This safely handles Web vs Mobile
                     child: kIsWeb
-                        ? Image.network(
-                            selectedImage!.path,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          )
-                        : Image.file(
-                            File(selectedImage!.path),
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          ),
+                        ? Image.network(selectedImage!.path, fit: BoxFit.cover, width: double.infinity)
+                        : Image.file(File(selectedImage!.path), fit: BoxFit.cover, width: double.infinity),
                   ),
           ),
         ),
         const SizedBox(height: 10),
+
         // --- Form Fields ---
         TextField(
           controller: titleController,
           decoration: const InputDecoration(labelText: "Event Title"),
         ),
-        TextField(
-          controller: categoryController,
-          decoration: const InputDecoration(labelText: "Category"),
+        
+        // CHANGE: Replaced TextField with DropdownButtonFormField
+        const SizedBox(height: 10), // Add a little spacing
+        DropdownButtonFormField<String>(
+          value: selectedCategory,
+          decoration: const InputDecoration(
+            labelText: "Category",
+            border: OutlineInputBorder(), // Optional: adds a border to match textfields
+            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          ),
+          items: categoryOptions.map((String category) {
+            return DropdownMenuItem<String>(
+              value: category,
+              child: Text(category.toUpperCase()), // Captialized for better UI
+            );
+          }).toList(),
+          onChanged: onCategoryChanged,
         ),
+        const SizedBox(height: 10),
+
         TextField(
           controller: descController,
           decoration: const InputDecoration(labelText: "Description"),
           maxLines: 3,
         ),
+        
+        // ... [Rest of the fields (Date, Price, Quota, etc) remain unchanged] ...
         Row(
           children: [
             Expanded(
               child: TextButton.icon(
                 icon: const Icon(Icons.calendar_today),
-                label: Text(
-                  startDate == null
-                      ? "Start Date"
-                      : "${startDate!.toLocal()}".split(' ')[0],
-                ),
+                label: Text(startDate == null ? "Start Date" : "${startDate!.toLocal()}".split(' ')[0]),
                 onPressed: () => onDatePick(true),
               ),
             ),
             Expanded(
               child: TextButton.icon(
                 icon: const Icon(Icons.calendar_today),
-                label: Text(
-                  endDate == null
-                      ? "End Date"
-                      : "${endDate!.toLocal()}".split(' ')[0],
-                ),
+                label: Text(endDate == null ? "End Date" : "${endDate!.toLocal()}".split(' ')[0]),
                 onPressed: () => onDatePick(false),
               ),
             ),
@@ -396,6 +403,7 @@ class _EventBioForm extends StatelessWidget {
     );
   }
 }
+
 
 // ==========================================
 // VIEW 2: Adding Quiz
