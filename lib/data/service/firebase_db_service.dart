@@ -19,16 +19,38 @@ class FirebaseDBService {
   }) async {
     try {
       final snapshot = await ref.get();
-
+      
       if (!snapshot.exists) return [];
+      
+      final dynamic rawData = snapshot.value;
+      
+      if (rawData == null) return [];
+      
+      final List<Map<String, dynamic>> result = [];
+      
+      if (rawData is Map) {
+        rawData.forEach((key, value) {
+          
+          if (value is Map) {
+            try {
 
-      final data = snapshot.value as Map<dynamic, dynamic>;
-
-      return data.entries.map((entry) {
-        final map = Map<String, dynamic>.from(entry.value);
-        map["id"] = entry.key;
-        return map;
-      }).toList();
+              final map = <String, dynamic>{};
+              
+              final valueAsMap = value as Map;
+              for (var entry in valueAsMap.entries) {
+                map[entry.key.toString()] = entry.value;
+              }
+              
+              map["id"] = key.toString();
+              result.add(map);
+            } catch (e) {
+              rethrow;
+            }
+          }
+        });
+      }
+      
+      return result;
     } catch (e) {
       rethrow;
     }

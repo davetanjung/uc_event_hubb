@@ -67,7 +67,7 @@ class EventCard extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          _getMonth(event.date),
+                          _getMonth(event.startDate),
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
@@ -75,7 +75,7 @@ class EventCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          _getDay(event.date),
+                          _getDay(event.startDate),
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

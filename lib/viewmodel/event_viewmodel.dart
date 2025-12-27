@@ -8,6 +8,9 @@ class EventViewModel with ChangeNotifier {
   List<Event> _events = [];
   List<Event> get events => _events;
 
+  List<Event> _mandatoryEvents = [];
+  List<Event> get mandatoryEvents => _mandatoryEvents;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -20,6 +23,20 @@ class EventViewModel with ChangeNotifier {
     try {
       final result = await _repo.fetchEvents();
       _events = result;
+      _errorMessage = null;
+    } catch (e) {
+      _errorMessage = e.toString();
+    }
+
+    _setLoading(false);
+  }
+
+  Future<void> fetchMandatoryEvents() async {
+    _setLoading(true);
+
+    try {
+      final result = await _repo.fetchMandatoryEvents();
+      _mandatoryEvents = result;
       _errorMessage = null;
     } catch (e) {
       _errorMessage = e.toString();
