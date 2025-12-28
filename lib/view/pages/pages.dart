@@ -24,3 +24,4 @@ part 'registration_page_view.dart';
 part 'create_event_view.dart';
 part 'event_detail_view.dart';
 part 'payment_bottom_sheet.dart';
+part 'ticket_detail_view.dart';

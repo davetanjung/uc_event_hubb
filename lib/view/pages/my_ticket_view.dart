@@ -1,9 +1,16 @@
 part of 'pages.dart';
 
-class MyTicketScreen extends StatelessWidget {
+class MyTicketScreen extends StatefulWidget {
   const MyTicketScreen({super.key});
 
-  Future<List<Map<String, dynamic>>> _fetchUserTickets(BuildContext context) async {
+  @override
+  State<MyTicketScreen> createState() => _MyTicketScreenState();
+}
+
+class _MyTicketScreenState extends State<MyTicketScreen> {
+  Future<List<Map<String, dynamic>>>? _futureTickets;
+
+  Future<List<Map<String, dynamic>>> _fetchUserTickets() async {
     final auth = Provider.of<AuthViewModel>(context, listen: false);
     final uid = auth.userId;
     if (uid.isEmpty) return [];
@@ -28,6 +35,18 @@ class MyTicketScreen extends StatelessWidget {
     return result;
   }
 
+  void _loadTickets() {
+    setState(() {
+      _futureTickets = _fetchUserTickets();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTickets();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +57,7 @@ class MyTicketScreen extends StatelessWidget {
         elevation: 0,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _fetchUserTickets(context),
+        future: _futureTickets,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -62,6 +81,8 @@ class MyTicketScreen extends StatelessWidget {
               final statusColor = status.toLowerCase() == 'upcoming' ? Colors.orange : Colors.grey;
               return _buildTicketCard(
                 context,
+                id: t['id']?.toString() ?? '',
+                eventId: t['eventId']?.toString() ?? '',
                 eventName: t['eventName']?.toString() ?? '',
                 date: t['date']?.toString() ?? '',
                 time: t['time']?.toString() ?? '',
@@ -79,6 +100,8 @@ class MyTicketScreen extends StatelessWidget {
 
   Widget _buildTicketCard(
     BuildContext context, {
+    required String id,
+    required String eventId,
     required String eventName,
     required String date,
     required String time,
@@ -162,11 +185,29 @@ class MyTicketScreen extends StatelessWidget {
                 ),
                 if (status == 'Upcoming')
                   ElevatedButton(
-                    onPressed: () {
-                      // Show ticket details
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('View Ticket Details')),
+                    onPressed: () async {
+                      // Navigate to ticket detail and refresh on return if deleted
+                      final result = await Navigator.push<bool?>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TicketDetailView(ticketId: id, ticketData: {
+                            'eventId': eventId,
+                            'eventName': eventName,
+                            'date': date,
+                            'time': time,
+                            'location': location,
+                            'ticketType': ticketType,
+                            'status': status,
+                          }),
+                        ),
                       );
+
+                      if (result == true) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Ticket cancelled')),
+                        );
+                        _loadTickets();
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2196F3),
