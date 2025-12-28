@@ -20,7 +20,7 @@ class _PaymentBottomSheetState extends State<PaymentBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final totalPrice = 300000 * widget.quantity; // Example price
+    final totalPrice = widget.event.price * widget.quantity;
 
     return Container(
       decoration: const BoxDecoration(
@@ -85,10 +85,6 @@ class _PaymentBottomSheetState extends State<PaymentBottomSheet> {
                     ),
                     child: Row(
                       children: [
-                        _buildPaymentTab(
-                          'Card',
-                          selectedPaymentMethod == 'Card',
-                        ),
                         _buildPaymentTab(
                           'Virtual Account',
                           selectedPaymentMethod == 'Virtual Account',
@@ -224,15 +220,49 @@ class _PaymentBottomSheetState extends State<PaymentBottomSheet> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Handle purchase
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Processing payment...'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
+                    onPressed: () async {
+                      // Handle purchase: save to DB, then close bottom sheet and event detail
+                      try {
+                        final auth = Provider.of<AuthViewModel>(context, listen: false);
+                        final uid = auth.userId;
+                        if (uid.isEmpty) throw Exception('User not authenticated');
+
+                        final db = FirebaseDatabase.instance;
+                        final userRef = db.ref('userTickets/$uid');
+
+                        final purchaseData = {
+                          'eventId': widget.event.id,
+                          'eventName': widget.event.title,
+                          'date': widget.event.startDate,
+                          'location': widget.event.location,
+                          'ticketType': 'General',
+                          'status': 'Upcoming',
+                          'price': widget.event.price,
+                          'quantity': widget.quantity,
+                          'paymentMethod': selectedPaymentMethod,
+                          'createdAt': DateTime.now().toIso8601String(),
+                        };
+
+                        await userRef.push().set(purchaseData);
+
+                        Navigator.pop(context); // close bottom sheet
+                        Navigator.pop(context); // close event detail view -> back to explore
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Ticket purchased successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } catch (e) {
+                        Navigator.pop(context); // close bottom sheet
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Purchase failed: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF00D9FF),

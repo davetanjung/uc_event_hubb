@@ -3,6 +3,31 @@ part of 'pages.dart';
 class MyTicketScreen extends StatelessWidget {
   const MyTicketScreen({super.key});
 
+  Future<List<Map<String, dynamic>>> _fetchUserTickets(BuildContext context) async {
+    final auth = Provider.of<AuthViewModel>(context, listen: false);
+    final uid = auth.userId;
+    if (uid.isEmpty) return [];
+
+    final snap = await FirebaseDatabase.instance.ref('userTickets/$uid').get();
+    if (!snap.exists || snap.value == null) return [];
+
+    final raw = snap.value;
+    final List<Map<String, dynamic>> result = [];
+
+    if (raw is Map) {
+      raw.forEach((key, value) {
+        if (value is Map) {
+          final map = <String, dynamic>{};
+          value.forEach((k, v) => map[k.toString()] = v);
+          map['id'] = key.toString();
+          result.add(map);
+        }
+      });
+    }
+
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,42 +37,42 @@ class MyTicketScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildTicketCard(
-            context,
-            eventName: 'Tech Conference 2024',
-            date: 'Dec 25, 2024',
-            time: '09:00 AM',
-            location: 'Jakarta Convention Center',
-            ticketType: 'VIP',
-            status: 'Upcoming',
-            statusColor: Colors.orange,
-          ),
-          const SizedBox(height: 16),
-          _buildTicketCard(
-            context,
-            eventName: 'Music Festival',
-            date: 'Dec 30, 2024',
-            time: '06:00 PM',
-            location: 'Gelora Bung Karno Stadium',
-            ticketType: 'General',
-            status: 'Upcoming',
-            statusColor: Colors.orange,
-          ),
-          const SizedBox(height: 16),
-          _buildTicketCard(
-            context,
-            eventName: 'Art Exhibition',
-            date: 'Dec 10, 2024',
-            time: '10:00 AM',
-            location: 'National Gallery',
-            ticketType: 'Regular',
-            status: 'Completed',
-            statusColor: Colors.grey,
-          ),
-        ],
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _fetchUserTickets(context),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          final tickets = snapshot.data ?? [];
+          if (tickets.isEmpty) {
+            return const Center(child: Text('You have not purchased any tickets yet.'));
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: tickets.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            itemBuilder: (context, index) {
+              final t = tickets[index];
+              final status = (t['status'] ?? 'Upcoming').toString();
+              final statusColor = status.toLowerCase() == 'upcoming' ? Colors.orange : Colors.grey;
+              return _buildTicketCard(
+                context,
+                eventName: t['eventName']?.toString() ?? '',
+                date: t['date']?.toString() ?? '',
+                time: t['time']?.toString() ?? '',
+                location: t['location']?.toString() ?? '',
+                ticketType: t['ticketType']?.toString() ?? '',
+                status: status,
+                statusColor: statusColor,
+              );
+            },
+          );
+        },
       ),
     );
   }

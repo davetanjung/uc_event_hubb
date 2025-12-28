@@ -290,188 +290,198 @@ class _HomeScreenState extends State<HomeScreen> {
         : 'Aug';
     final day = startDate?.day.toString() ?? '26';
 
-    return Container(
-      width: isMandatory ? double.infinity : 200,
-      margin: EdgeInsets.only(
-        right: isMandatory ? 0 : 12,
-        bottom: isMandatory ? 12 : 0,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EventDetailView(event: event),
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image with Date Badge
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
-                child: event.image.isNotEmpty
-                    ? Image.network(
-                        event.image,
-                        height: 120,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      )
-                    : Container(
-                        height: 120,
-                        color: Colors.grey.shade300,
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.image, size: 40),
-                      ),
-              ),
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+        );
+      },
+      child: Container(
+        width: isMandatory ? double.infinity : 200,
+        margin: EdgeInsets.only(
+          right: isMandatory ? 0 : 12,
+          bottom: isMandatory ? 12 : 0,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image with Date Badge
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    children: [
-                      Text(
-                        month,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54,
+                  child: event.image.isNotEmpty
+                      ? Image.network(
+                          event.image,
+                          height: 120,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          height: 120,
+                          color: Colors.grey.shade300,
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.image, size: 40),
                         ),
-                      ),
-                      Text(
-                        day,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-              // New: KP Badge
-              if (event.kp.isNotEmpty)
                 Positioned(
                   top: 8,
-                  right: 8,
+                  left: 8,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
+                      horizontal: 12,
+                      vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF4DB8E8),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    child: Column(
                       children: [
-                        const Icon(
-                          Icons.star,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 4),
                         Text(
-                          "${event.kp} KP",
+                          month,
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        Text(
+                          day,
+                          style: const TextStyle(
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Colors.black,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-            ],
-          ),
-
-          // Event Details
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  event.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Container(
+                // New: KP Badge
+                if (event.kp.isNotEmpty)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: 10,
+                        vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: event.mandatory
-                            ? Colors.black
-                            : Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(4),
+                        color: const Color(0xFF4DB8E8),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(
-                        event.mandatory ? "Mandatory" : "Optional",
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: event.mandatory
-                              ? Colors.white
-                              : Colors.black54,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.star,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            "${event.kp} KP",
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(
+                  ),
+              ],
+            ),
+
+            // Event Details
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    event.title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
+                          color: event.mandatory
+                              ? Colors.black
+                              : Colors.grey.shade200,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          _formatPrice(event.price),
-                          style: const TextStyle(
+                          event.mandatory ? "Mandatory" : "Optional",
+                          style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: Colors.black54,
+                            color: event.mandatory
+                                ? Colors.white
+                                : Colors.black54,
                           ),
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            _formatPrice(event.price),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -121,7 +121,7 @@ class _EventDetailViewState extends State<EventDetailView> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        widget.event.date,
+                        widget.event.startDate,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey.shade700,

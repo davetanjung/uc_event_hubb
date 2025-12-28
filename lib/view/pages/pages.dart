@@ -7,9 +7,9 @@ import 'package:uc_event_hubb/view/widgets/bottom_bar.dart';
 import 'package:uc_event_hubb/view/widgets/upcoming_events_section.dart';
 import 'package:uc_event_hubb/viewmodel/auth_viewmodel.dart';
 import 'package:uc_event_hubb/data/service/cloudinary_service.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uc_event_hubb/viewmodel/user_viewmodel.dart';
 
@@ -22,3 +22,5 @@ part 'welcome_page_view.dart';
 part 'login_page_view.dart';
 part 'registration_page_view.dart';
 part 'create_event_view.dart';
+part 'event_detail_view.dart';
+part 'payment_bottom_sheet.dart';

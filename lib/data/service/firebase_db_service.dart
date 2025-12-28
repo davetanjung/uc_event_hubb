@@ -36,8 +36,7 @@ class FirebaseDBService {
 
               final map = <String, dynamic>{};
               
-              final valueAsMap = value as Map;
-              for (var entry in valueAsMap.entries) {
+              for (var entry in value.entries) {
                 map[entry.key.toString()] = entry.value;
               }
               
