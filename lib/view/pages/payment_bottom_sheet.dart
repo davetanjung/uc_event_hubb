@@ -230,6 +230,19 @@ class _PaymentBottomSheetState extends State<PaymentBottomSheet> {
                         final db = FirebaseDatabase.instance;
                         final userRef = db.ref('userTickets/$uid');
 
+                        // Check if user already has a ticket for this event
+                        final existing = await userRef.orderByChild('eventId').equalTo(widget.event.id).get();
+                        if (existing.exists) {
+                          Navigator.pop(context); // close bottom sheet
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('You already purchased a ticket for this event.'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
                         final purchaseData = {
                           'eventId': widget.event.id,
                           'eventName': widget.event.title,

@@ -99,13 +99,9 @@ class _TicketDetailViewState extends State<TicketDetailView> {
 		final eventName = _event?.title ?? data['eventName'] ?? '-';
 		final description = _event?.description ?? data['description'] ?? '';
 		final startDate = _event?.startDate ?? data['startDate'] ?? data['date'] ?? '-';
-		final endDate = _event?.endDate ?? data['endDate'] ?? '-';
 		final image = _event?.image ?? data['image'] ?? '';
 		final kp = _event?.kp ?? data['kp'] ?? '';
 		final mandatory = _event?.mandatory ?? data['mandatory'] ?? false;
-		final date = startDate;
-		final time = data['time'] ?? '-';
-		final location = data['location'] ?? '-';
 		final ticketType = data['ticketType'] ?? '-';
 		final status = data['status'] ?? '-';
 		final price = data['price'] ?? _event?.price ?? 0;
