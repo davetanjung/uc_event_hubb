@@ -95,13 +95,13 @@ class _LoginPageViewState extends State<LoginPageView> {
               child: const Text("Don't have an account? Create one"),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/create_event');
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-              child: const Text("Test Create Event Page"),
-            ),
+            // ElevatedButton(
+            //   onPressed: () {
+            //     Navigator.pushNamed(context, '/create_event');
+            //   },
+            //   style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            //   child: const Text("Test Create Event Page"),
+            // ),
           ],
         ),
       ),
