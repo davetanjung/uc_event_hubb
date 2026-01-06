@@ -30,12 +30,6 @@ class CustomBottomNavBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _NavItem(
-                icon: Icons.confirmation_number_outlined,
-                label: 'My Ticket',
-                isActive: currentIndex == 0,
-                onTap: () => onTap(0),
-              ),
-              _NavItem(
                 icon: Icons.explore,
                 iconActive: Icons.explore,
                 label: 'Explore',
@@ -43,8 +37,14 @@ class CustomBottomNavBar extends StatelessWidget {
                 onTap: () => onTap(1),
               ),
               _NavItem(
-                icon: Icons.star_outline,
-                iconActive: Icons.star,
+                icon: Icons.confirmation_number_outlined,
+                label: 'My Ticket',
+                isActive: currentIndex == 0,
+                onTap: () => onTap(0),
+              ),
+              _NavItem(
+                icon: Icons.person_outline,
+                iconActive: Icons.person,
                 label: 'Profile',
                 isActive: currentIndex == 2,
                 onTap: () => onTap(2),

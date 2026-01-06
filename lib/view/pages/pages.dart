@@ -9,6 +9,7 @@ import 'package:uc_event_hubb/viewmodel/auth_viewmodel.dart';
 import 'package:uc_event_hubb/data/service/cloudinary_service.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:html' as html;
 import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uc_event_hubb/viewmodel/user_viewmodel.dart';

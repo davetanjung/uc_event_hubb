@@ -106,146 +106,152 @@ class _TicketDetailViewState extends State<TicketDetailView> {
 		final status = data['status'] ?? '-';
 		final price = data['price'] ?? _event?.price ?? 0;
 
-		return Scaffold(
-			backgroundColor: Colors.white,
-			body: CustomScrollView(
-				slivers: [
-					SliverAppBar(
-						expandedHeight: 250,
-						pinned: true,
-						leading: IconButton(
-							icon: const Icon(Icons.arrow_back, color: Colors.white),
-							onPressed: () => Navigator.pop(context),
-						),
-						title: const Text(
-							'Ticket Detail',
-							style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
-						),
-						flexibleSpace: FlexibleSpaceBar(
-							background: Stack(
-								fit: StackFit.expand,
-								children: [
-									image.isNotEmpty
-											? Image.network(image, fit: BoxFit.contain)
-                      // kalau mau mirip sama event detail ganti boxfit jadi cover
-											: Container(
-													color: Colors.grey.shade300,
-													child: const Icon(Icons.image, size: 100, color: Colors.grey),
-												),
-									Container(
-										decoration: BoxDecoration(
-											gradient: LinearGradient(
-												begin: Alignment.topCenter,
-												end: Alignment.bottomCenter,
-												colors: [
-													Colors.black.withOpacity(0.3),
-													Colors.transparent,
-												],
-											),
-										),
-									),
-								],
+		return WillPopScope(
+			onWillPop: () async {
+				// Always allow back navigation, just return false (to pop normally)
+				Navigator.of(context).pop(false);
+				return false; // Prevent default back, we handle it manually
+			},
+			child: Scaffold(
+				backgroundColor: Colors.white,
+				body: CustomScrollView(
+					slivers: [
+						SliverAppBar(
+							expandedHeight: 250,
+							pinned: true,
+							leading: IconButton(
+								icon: const Icon(Icons.arrow_back, color: Colors.white),
+								onPressed: () => Navigator.pop(context, false),
 							),
-						),
-					),
-
-					SliverToBoxAdapter(
-						child: Padding(
-							padding: const EdgeInsets.all(20),
-							child: Column(
-								crossAxisAlignment: CrossAxisAlignment.start,
-								children: [
-									// category badge (if available)
-									if ((_event?.category ?? data['category']) != null && (_event?.category ?? data['category']).toString().isNotEmpty)
+							title: const Text(
+								'Ticket Detail',
+								style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+							),
+							flexibleSpace: FlexibleSpaceBar(
+								background: Stack(
+									fit: StackFit.expand,
+									children: [
+										image.isNotEmpty
+												? Image.network(image, fit: BoxFit.contain)
+												: Container(
+														color: Colors.grey.shade300,
+														child: const Icon(Icons.image, size: 100, color: Colors.grey),
+													),
 										Container(
-											padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-											decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(20)),
+											decoration: BoxDecoration(
+												gradient: LinearGradient(
+													begin: Alignment.topCenter,
+													end: Alignment.bottomCenter,
+													colors: [
+														Colors.black.withOpacity(0.3),
+														Colors.transparent,
+													],
+												),
+											),
+										),
+									],
+								),
+							),
+						),
+
+						SliverToBoxAdapter(
+							child: Padding(
+								padding: const EdgeInsets.all(20),
+								child: Column(
+									crossAxisAlignment: CrossAxisAlignment.start,
+									children: [
+										// category badge (if available)
+										if ((_event?.category ?? data['category']) != null && (_event?.category ?? data['category']).toString().isNotEmpty)
+											Container(
+												padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+												decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(20)),
+												child: Row(
+													mainAxisSize: MainAxisSize.min,
+													children: [
+														const Icon(Icons.music_note, size: 14),
+														const SizedBox(width: 4),
+														Text(( _event?.category ?? data['category'])?.toString() ?? '', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+													],
+												),
+											),
+										const SizedBox(height: 12),
+
+										// title
+										Text(eventName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
+										const SizedBox(height: 12),
+
+										// date and room
+										Row(
+											children: [
+												const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+												const SizedBox(width: 6),
+												Text(startDate, style: TextStyle(fontSize: 14, color: Colors.grey.shade700)),
+												if ((_event?.room ?? data['room']) != null && (_event?.room ?? data['room']).toString().isNotEmpty) ...[
+													const SizedBox(width: 16),
+													const Icon(Icons.meeting_room, size: 16, color: Colors.grey),
+													const SizedBox(width: 6),
+													Text((_event?.room ?? data['room']).toString(), style: TextStyle(fontSize: 14, color: Colors.grey.shade700)),
+												],
+											],
+										),
+										const SizedBox(height: 24),
+
+										const Text('About Event', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+										const SizedBox(height: 8),
+										Text(description.isNotEmpty ? description : 'No description available', style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1.5)),
+										const SizedBox(height: 24),
+
+										const Text('Available Tickets', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+										const SizedBox(height: 16),
+
+										// simple ticket card display
+										Container(
+											padding: const EdgeInsets.all(16),
+											decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(12)),
 											child: Row(
-												mainAxisSize: MainAxisSize.min,
 												children: [
-													const Icon(Icons.music_note, size: 14),
-													const SizedBox(width: 4),
-													Text(( _event?.category ?? data['category'])?.toString() ?? '', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+													Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFF00D9FF).withOpacity(0.1), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.confirmation_number_outlined, color: Color(0xFF00D9FF), size: 24)),
+													const SizedBox(width: 12),
+													Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(ticketType, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)), const SizedBox(height: 4), Text('Rp. ${_formatPrice(price)}', style: TextStyle(fontSize: 13, color: Colors.grey.shade600))])),
+													// no quantity controls here
 												],
 											),
 										),
-									const SizedBox(height: 12),
 
-									// title
-									Text(eventName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
-									const SizedBox(height: 12),
+										const SizedBox(height: 24),
 
-									// date and room
-									Row(
-										children: [
-											const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-											const SizedBox(width: 6),
-											Text(startDate, style: TextStyle(fontSize: 14, color: Colors.grey.shade700)),
-											if ((_event?.room ?? data['room']) != null && (_event?.room ?? data['room']).toString().isNotEmpty) ...[
-												const SizedBox(width: 16),
-												const Icon(Icons.meeting_room, size: 16, color: Colors.grey),
-												const SizedBox(width: 6),
-												Text((_event?.room ?? data['room']).toString(), style: TextStyle(fontSize: 14, color: Colors.grey.shade700)),
-											],
+										Row(children: [const Icon(Icons.info, size: 16), const SizedBox(width: 6), Text('Status: $status')]),
+										const SizedBox(height: 8),
+										Row(children: [const Icon(Icons.badge, size: 16), const SizedBox(width: 6), Text('KP: $kp')]),
+										const SizedBox(height: 6),
+										Row(children: [const Icon(Icons.warning_amber, size: 16), const SizedBox(width: 6), Text('Mandatory: ${mandatory ? 'Yes' : 'No'}')]),
+
+										const SizedBox(height: 24),
+
+										if (_isDeleting) ...[
+											const Center(child: CircularProgressIndicator()),
+											const SizedBox(height: 16),
 										],
-									),
-									const SizedBox(height: 24),
 
-									const Text('About Event', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-									const SizedBox(height: 8),
-									Text(description.isNotEmpty ? description : 'No description available', style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1.5)),
-									const SizedBox(height: 24),
-
-									const Text('Available Tickets', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-									const SizedBox(height: 16),
-
-									// simple ticket card display
-									Container(
-										padding: const EdgeInsets.all(16),
-										decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(12)),
-										child: Row(
-											children: [
-												Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFF00D9FF).withOpacity(0.1), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.confirmation_number_outlined, color: Color(0xFF00D9FF), size: 24)),
-												const SizedBox(width: 12),
-												Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(ticketType, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)), const SizedBox(height: 4), Text('Rp. ${_formatPrice(price)}', style: TextStyle(fontSize: 13, color: Colors.grey.shade600))])),
-												// no quantity controls here
-											],
+										SizedBox(
+											width: double.infinity,
+											child: ElevatedButton(
+												onPressed: status == 'Upcoming' && !_isDeleting ? _confirmAndDelete : null,
+												style: ElevatedButton.styleFrom(backgroundColor: Colors.red, padding: const EdgeInsets.symmetric(vertical: 14)),
+												child: const Text('Cancel Ticket'),
+											),
 										),
-									),
-
-									const SizedBox(height: 24),
-
-									Row(children: [const Icon(Icons.info, size: 16), const SizedBox(width: 6), Text('Status: $status')]),
-									const SizedBox(height: 8),
-									Row(children: [const Icon(Icons.badge, size: 16), const SizedBox(width: 6), Text('KP: $kp')]),
-									const SizedBox(height: 6),
-									Row(children: [const Icon(Icons.warning_amber, size: 16), const SizedBox(width: 6), Text('Mandatory: ${mandatory ? 'Yes' : 'No'}')]),
-
-									const SizedBox(height: 24),
-
-									if (_isDeleting) ...[
-										const Center(child: CircularProgressIndicator()),
-										const SizedBox(height: 16),
+										const SizedBox(height: 12),
+										SizedBox(
+											width: double.infinity,
+											child: OutlinedButton(onPressed: _isDeleting ? null : () => Navigator.of(context).pop(false), style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)), child: const Text('Back')),
+										),
 									],
-
-									SizedBox(
-										width: double.infinity,
-										child: ElevatedButton(
-											onPressed: status == 'Upcoming' && !_isDeleting ? _confirmAndDelete : null,
-											style: ElevatedButton.styleFrom(backgroundColor: Colors.red, padding: const EdgeInsets.symmetric(vertical: 14)),
-											child: const Text('Cancel Ticket'),
-										),
-									),
-									const SizedBox(height: 12),
-									SizedBox(
-										width: double.infinity,
-										child: OutlinedButton(onPressed: _isDeleting ? null : () => Navigator.of(context).pop(false), style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)), child: const Text('Back')),
-									),
-								],
+								),
 							),
 						),
-					),
-				],
+					],
+				),
 			),
 		);
 	}
@@ -258,4 +264,3 @@ class _TicketDetailViewState extends State<TicketDetailView> {
 		);
 	}
 }
-

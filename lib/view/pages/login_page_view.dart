@@ -37,7 +37,16 @@ class _LoginPageViewState extends State<LoginPageView> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Login success")));
-      Navigator.pushReplacementNamed(context, '/explore');
+       if (kIsWeb) {
+        // Clear all back history
+        html.window.history.pushState(null, '', '/explore');
+        
+        // Prevent any back navigation after login
+        html.window.onPopState.listen((event) {
+          html.window.history.pushState(null, '', '/explore');
+        });
+      }
+    Navigator.pushReplacementNamed(context, '/explore');
     }
   }
 

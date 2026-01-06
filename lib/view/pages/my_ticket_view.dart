@@ -49,51 +49,59 @@ class _MyTicketScreenState extends State<MyTicketScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Tickets'),
-        backgroundColor: const Color(0xFF2196F3),
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _futureTickets,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+    return WillPopScope(
+      onWillPop: () async {
+        // This screen is part of MainNavigationScreen, so we don't want to pop
+        // Instead, just return false to prevent navigation
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('My Tickets'),
+          backgroundColor: const Color(0xFF2196F3),
+          foregroundColor: Colors.white,
+          elevation: 0,
+          automaticallyImplyLeading: false, // Remove back button from AppBar
+        ),
+        body: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _futureTickets,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
 
-          final tickets = snapshot.data ?? [];
-          if (tickets.isEmpty) {
-            return const Center(child: Text('You have not purchased any tickets yet.'));
-          }
+            final tickets = snapshot.data ?? [];
+            if (tickets.isEmpty) {
+              return const Center(child: Text('You have not purchased any tickets yet.'));
+            }
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: tickets.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              final t = tickets[index];
-              final status = (t['status'] ?? 'Upcoming').toString();
-              final statusColor = status.toLowerCase() == 'upcoming' ? Colors.orange : Colors.grey;
-              return _buildTicketCard(
-                context,
-                id: t['id']?.toString() ?? '',
-                eventId: t['eventId']?.toString() ?? '',
-                eventName: t['eventName']?.toString() ?? '',
-                date: t['date']?.toString() ?? '',
-                time: t['time']?.toString() ?? '',
-                location: t['location']?.toString() ?? '',
-                ticketType: t['ticketType']?.toString() ?? '',
-                status: status,
-                statusColor: statusColor,
-              );
-            },
-          );
-        },
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: tickets.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final t = tickets[index];
+                final status = (t['status'] ?? 'Upcoming').toString();
+                final statusColor = status.toLowerCase() == 'upcoming' ? Colors.orange : Colors.grey;
+                return _buildTicketCard(
+                  context,
+                  id: t['id']?.toString() ?? '',
+                  eventId: t['eventId']?.toString() ?? '',
+                  eventName: t['eventName']?.toString() ?? '',
+                  date: t['date']?.toString() ?? '',
+                  time: t['time']?.toString() ?? '',
+                  location: t['location']?.toString() ?? '',
+                  ticketType: t['ticketType']?.toString() ?? '',
+                  status: status,
+                  statusColor: statusColor,
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
